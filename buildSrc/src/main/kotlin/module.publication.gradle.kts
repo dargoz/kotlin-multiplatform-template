@@ -53,7 +53,7 @@ configure<ArtifactoryPluginConvention> {
         // Define the project repository to which the artifacts will be published
         repository {
             // Option 1 - Define the Artifactory repository key
-            repoKey = "libs-snapshot-local"
+            repoKey = "gradle-dev-local"
             // Option 2 - Specify release and snapshot repositories; let the plugin decide to which one to publish
             // releaseRepoKey = "libs-release-local"
             // snapshotRepoKey = "libs-snapshot-local"
