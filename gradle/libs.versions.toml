@@ -13,11 +13,13 @@ androidx-test-junit = "1.1.5"
 compose-plugin = "1.6.10"
 jfrog = "5.2.2"
 junit = "4.13.2"
+kotest = "5.9.1"
 kotlin = "2.0.0"
 ktor = "2.3.11"
 logback = "1.5.6"
 
 [libraries]
+kotest-framework-multiplatform-gradle = { group = "io.kotest", name = "kotest-framework-multiplatform-plugin-gradle", version.ref = "kotest"}
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 jfrog-build-info-extractor-gradle = { group = "org.jfrog.buildinfo", name = "build-info-extractor-gradle", version.ref = "jfrog"}
