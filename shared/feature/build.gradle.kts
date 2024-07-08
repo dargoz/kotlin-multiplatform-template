@@ -21,6 +21,11 @@ kotlin {
                     }
                 }
             }
+            testTask {
+                useKarma {
+                    useChrome()
+                }
+            }
         }
     }
 

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     id("io.kotest.multiplatform") version "5.9.1"
+    kotlin("plugin.serialization") version "2.0.0"
     id("module.publication")
 }
 
@@ -20,6 +21,11 @@ kotlin {
                         // Serve sources to debug inside browser
                         add(project.projectDir.path)
                     }
+                }
+            }
+            testTask {
+                useKarma {
+                    useChrome()
                 }
             }
         }
@@ -48,6 +54,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // put your Multiplatform dependencies here
+            implementation(libs.kotlinx.serialization)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.io.core)
+            implementation(kotlin("reflect"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -55,6 +65,12 @@ kotlin {
 
         androidMain.dependencies {
 
+        }
+
+        jvmMain.dependencies {
+            implementation(libs.auth.java.jwt)
+            implementation("com.auth0:jwks-rsa:0.22.1")
+            implementation("io.jsonwebtoken:jjwt-api:0.12.3")
         }
     }
 }
