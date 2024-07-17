@@ -1,3 +1,6 @@
+package com.dargoz
+
+import Greeting
 
 class FeatureEntry {
 
