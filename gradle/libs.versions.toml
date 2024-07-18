@@ -15,11 +15,13 @@ compose-plugin = "1.6.10"
 jfrog = "5.2.2"
 junit = "4.13.2"
 koin-bom = "3.6.0-wasm-alpha2"
+koin-annotations-bom = "1.3.1"
 kotest = "5.9.1"
 kotlin = "2.0.0"
 kotlinx_io = "0.4.0"
 kotlinx_serialization = "1.7.1"
 kotlinx_datetime = "0.6.0"
+ksp = "2.0.0-1.0.23"
 ktor = "2.3.12"
 logback = "1.5.6"
 
@@ -28,6 +30,10 @@ auth-java-jwt = { module = "com.auth0:java-jwt", version.ref = "auth-java-jwt" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-compose = { module = "io.insert-koin:koin-compose" }
+koin-test = { module = "io.insert-koin:koin-test" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations-bom" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations-bom" }
 kotest-framework-multiplatform-gradle = { group = "io.kotest", name = "kotest-framework-multiplatform-plugin-gradle", version.ref = "kotest" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -63,3 +69,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

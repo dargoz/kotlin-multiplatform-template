@@ -6,7 +6,9 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.io.IOException
+import org.koin.core.annotation.Single
 
+@Single(binds = [FeatureService::class])
 class FeatureServiceImpl(private val client: HttpClient): FeatureService {
 
 
