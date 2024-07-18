@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.dargoz.di.featureModule
+import com.dargoz.domain.entities.FeatureEntity
 
 import com.dargoz.domain.usecases.FeatureUseCase
 import com.example.composeapp.generated.resources.Res
@@ -27,15 +28,17 @@ fun App() {
         // your preview config here
         modules(featureModule())
     }) {
+        val featureUseCase = koinInject<FeatureUseCase>()
         MaterialTheme {
             var showContent by remember { mutableStateOf(false) }
-            val featureUseCase = koinInject<FeatureUseCase>()
+            val featureEntity = remember { mutableStateOf<FeatureEntity?>(null) }
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Button(onClick = {
                     showContent = !showContent
                     GlobalScope.launch {
                         val result = featureUseCase("")
                         println("feature use case result : ${result.getOrNull()}")
+                        featureEntity.value = result.getOrNull()
                     }
 
                 }) {
@@ -46,6 +49,7 @@ fun App() {
                     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Image(painterResource(Res.drawable.compose_multiplatform), null)
                         Text("Compose: $greeting")
+                        Text("${featureEntity.value?.name}")
                     }
                 }
             }
