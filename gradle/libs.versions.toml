@@ -12,6 +12,9 @@ androidx-material = "1.12.0"
 androidx-test-junit = "1.1.5"
 auth-java-jwt = "4.4.0"
 compose-plugin = "1.6.10"
+grpc = "1.62.2"
+grpc-kotlin = "1.4.1"
+protobuf = "3.25.3"
 jfrog = "5.2.2"
 junit = "4.13.2"
 koin-bom = "3.6.0-wasm-alpha2"
@@ -27,6 +30,21 @@ logback = "1.5.6"
 
 [libraries]
 auth-java-jwt = { module = "com.auth0:java-jwt", version.ref = "auth-java-jwt" }
+grpc-kotlin-stub = {module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin"}
+grpc-protobuf = { group = "io.grpc", name = "grpc-protobuf", version.ref = "grpc" }
+grpc-protobuf-lite = { group = "io.grpc", name = "grpc-protobuf-lite", version.ref = "grpc" }
+grpc-alts = { group = "io.grpc", name = "grpc-alts", version.ref = "grpc" }
+grpc-auth = { group = "io.grpc", name = "grpc-auth", version.ref = "grpc" }
+grpc-netty = { group = "io.grpc", name = "grpc-netty", version.ref = "grpc" }
+grpc-okhttp = { group = "io.grpc", name = "grpc-okhttp", version.ref = "grpc" }
+grpc-testing = { group = "io.grpc", name = "grpc-testing", version.ref = "grpc" }
+grpc-stub = { group = "io.grpc", name = "grpc-stub", version.ref = "grpc" }
+protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
+protobuf-kotlin = {module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf"}
+protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
+protobuf-java-util = { group = "com.google.protobuf", name = "protobuf-java-util", version.ref = "protobuf" }
+protoc-gen-grpc-java = { group = "io.grpc", name = "protoc-gen-grpc-java", version.ref = "grpc" }
+protoc-gen-grpc-kotlin = { group = "io.grpc", name = "protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-compose = { module = "io.insert-koin:koin-compose" }
@@ -43,6 +61,7 @@ kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", ve
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.8.0" }
 kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx_io" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx_serialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx_datetime" }
@@ -77,3 +96,4 @@ ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+protobuf = { id = "com.google.protobuf", version = "0.9.4" }

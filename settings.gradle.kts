@@ -29,6 +29,10 @@ dependencyResolutionManagement {
 }
 
 include(":composeApp")
-include(":server")
+include(":protos")
+include(":stub")
+include(":stub-lite")
+include(":server:http-server")
+include(":server:grpc-server")
 include(":shared:common")
 include(":shared:feature")
