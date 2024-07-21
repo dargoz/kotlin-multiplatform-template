@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     kotlin("plugin.serialization") version "2.0.0"
     id("module.publication")
+    alias(libs.plugins.kotest.multiplatform)
 }
 
 kotlin {
@@ -70,6 +71,9 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotest.assertions.core)
+            implementation(libs.kotest.framework.engine)
+            implementation(libs.kotest.property)
         }
         jvmMain.dependencies {
             implementation(libs.ktor.client.java)

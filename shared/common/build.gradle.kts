@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    id("io.kotest.multiplatform") version "5.9.1"
+    alias(libs.plugins.kotest.multiplatform)
     kotlin("plugin.serialization") version "2.0.0"
     id("module.publication")
 }
@@ -39,6 +39,9 @@ kotlin {
     }
     
     jvm()
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
     
     listOf(
         iosX64(),
@@ -61,6 +64,10 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotest.assertions.core)
+            implementation(libs.kotest.framework.engine)
+            implementation(libs.kotest.framework.datatest)
+            implementation(libs.kotest.property)
         }
 
         androidMain.dependencies {
@@ -71,6 +78,9 @@ kotlin {
             implementation(libs.auth.java.jwt)
             implementation("com.auth0:jwks-rsa:0.22.1")
             implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+        }
+        jvmTest.dependencies {
+            implementation(libs.kotest.runner.junit5)
         }
     }
 }
@@ -84,5 +94,21 @@ android {
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
+
+tasks.named<Test>("jvmTest") {
+    useJUnitPlatform()
+    filter {
+        isFailOnNoMatchingTests = false
+    }
+    testLogging {
+        showExceptions = true
+        showStandardStreams = true
+        events = setOf(
+            org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+            org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
+        )
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
 }
