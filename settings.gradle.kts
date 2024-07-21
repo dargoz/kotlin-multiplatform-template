@@ -1,4 +1,4 @@
-rootProject.name = "domain"
+rootProject.name = "kotlin-multiplatform-template"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
