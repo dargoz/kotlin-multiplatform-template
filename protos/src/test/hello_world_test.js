@@ -2,7 +2,7 @@ import { Client, StatusOK } from 'k6/net/grpc';
 import { check, sleep } from 'k6';
 
 const client = new Client();
-client.load(['helloworld'], 'hello_world.proto');
+client.load(['../main/proto/io/grpc/examples/helloworld'], 'hello_world.proto');
 
 export default () => {
   // use plaintext : true for http server (usually development localhost without TLS)

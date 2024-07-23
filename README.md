@@ -27,3 +27,28 @@ You can open the web application by running the `:composeApp:wasmJsBrowserDevelo
 
 ## Generate Koin Class with KSP
 `./gradlew kspCommonMainKotlinMetadata`
+
+## Load Test
+this section will guide you to do Load Test using (k6)[https://k6.io]
+
+### Setup
+1. Installation
+   - Windows using `winget`:
+     ```shell
+      winget install k6 --source winget
+     ```
+   - MacOS using Homebrew:
+     ```shell
+      brew install k6
+     ```
+2. Verify Installation
+   to check whether k6 already installed to your system, you can simply run:
+    ```shell
+    k6 --version
+    ```
+### Run a Test
+1. make sure your gRPC server running
+2. execute k6 script
+```shell
+k6 run .\protos\src\test\hello_world_test.js
+```
