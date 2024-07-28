@@ -38,6 +38,7 @@ fun App() {
                     GlobalScope.launch {
                         val result = featureUseCase("")
                         println("feature use case result : ${result.getOrNull()}")
+                        println(result.exceptionOrNull())
                         featureEntity.value = result.getOrNull()
                     }
 

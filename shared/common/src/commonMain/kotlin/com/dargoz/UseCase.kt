@@ -2,11 +2,11 @@ package com.dargoz
 
 abstract class UseCase<Return, Param> {
 
-    suspend operator fun invoke(param: Param): Result<Return> {
+    suspend operator fun invoke(param: Param): IResult<Return> {
         return try {
-            Result.success(execute(param))
+            IResult.success(execute(param))
         } catch (e: Exception) {
-            Result.failure(e)
+            IResult.failure(e)
         }
     }
 

@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
@@ -10,9 +11,18 @@ plugins {
     kotlin("plugin.serialization") version "2.0.0"
     id("module.publication")
     alias(libs.plugins.kotest.multiplatform)
+    id("org.jetbrains.kotlin.native.cocoapods")
 }
 
 kotlin {
+    cocoapods {
+        summary = "Some description for a Kotlin/Native module"
+        homepage = "Link to a Kotlin/Native module homepage"
+
+        // Optional properties
+        // Configure the Pod name here instead of changing the Gradle project name
+        name = "MyCocoaPod"
+    }
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -41,14 +51,15 @@ kotlin {
 
     jvm()
 
+    val xcFramework = XCFramework()
     listOf(
         iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "Shared"
-            isStatic = true
+            baseName = this.project.name
+            xcFramework.add(this)
         }
     }
 
