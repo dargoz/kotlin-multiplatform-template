@@ -7,7 +7,7 @@ import kotlin.native.ObjCName
 
 @Suppress("UNCHECKED_CAST")
 @OptIn(ExperimentalObjCName::class)
-@ObjCName("IResult")
+@ObjCName("IResult", swiftName = "IResult", exact = true)
 class IResult<out T>(
     @PublishedApi
     internal val value: Any?
@@ -75,7 +75,7 @@ class IResult<out T>(
          * Returns an instance that encapsulates the given [Throwable] [exception] as failure.
          */
         @JvmName("failure")
-        inline fun <T> failure(exception: Throwable): IResult<T> =
+        fun <T> failure(exception: Throwable): IResult<T> =
             IResult(createFailure(exception))
     }
 
