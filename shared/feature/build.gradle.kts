@@ -23,8 +23,8 @@ kotlin {
         // Configure the Pod name here instead of changing the Gradle project name
         name = "MyCocoaPod"
     }
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
+
+    js {
         browser {
             commonWebpackConfig {
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {

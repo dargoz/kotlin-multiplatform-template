@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotest.multiplatform)
     kotlin("plugin.serialization") version "2.0.0"
@@ -13,8 +14,7 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
+    js {
         browser {
             commonWebpackConfig {
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
@@ -40,9 +40,6 @@ kotlin {
     }
     
     jvm()
-    compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
-    }
 
     val xcFramework = XCFramework()
     listOf(
@@ -57,12 +54,23 @@ kotlin {
     }
     
     sourceSets {
-        commonMain.dependencies {
+        commonMain {
             // put your Multiplatform dependencies here
-            implementation(libs.kotlinx.serialization)
-            implementation(libs.kotlinx.datetime)
-            implementation(libs.kotlinx.io.core)
-            implementation(kotlin("reflect"))
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+            dependencies {
+                implementation(libs.kotlin.stdlib)
+                implementation(libs.kotlinx.serialization)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.io.core)
+                implementation(libs.koin.core)
+                api(libs.koin.annotations)
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.kotlinx.serialization)
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(kotlin("reflect"))
+            }
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -73,11 +81,15 @@ kotlin {
         }
 
         androidMain.dependencies {
-
+            implementation(libs.ktor.client.okhttp)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
 
         jvmMain.dependencies {
             implementation(libs.auth.java.jwt)
+            implementation(libs.ktor.client.java)
             implementation("com.auth0:jwks-rsa:0.22.1")
             implementation("io.jsonwebtoken:jjwt-api:0.12.3")
         }
@@ -112,5 +124,28 @@ tasks.named<Test>("jvmTest") {
             org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
         )
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+
+dependencies {
+    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
+}
+
+ksp {
+    arg("KOIN_CONFIG_CHECK","true")
+}
+
+// WORKAROUND: ADD this dependsOn("kspCommonMainKotlinMetadata") instead of above dependencies
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+}
+afterEvaluate {
+    tasks.filter {
+        it.name.contains("SourcesJar", true)
+    }.forEach {
+        println("SourceJarTask====>${it.name}")
+        it.dependsOn("kspCommonMainKotlinMetadata")
     }
 }
