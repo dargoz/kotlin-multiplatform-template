@@ -16,12 +16,12 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(17)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
+    compilerOptions {
+        freeCompilerArgs.set(listOf("-opt-in=kotlin.RequiresOptIn"))
     }
 }
 

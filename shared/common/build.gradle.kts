@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotest.multiplatform)
-    kotlin("plugin.serialization") version "2.0.0"
+    alias(libs.plugins.kotlin.serialization)
     id("module.publication")
 }
 
@@ -76,7 +76,6 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotest.assertions.core)
             implementation(libs.kotest.framework.engine)
-            implementation(libs.kotest.framework.datatest)
             implementation(libs.kotest.property)
         }
 

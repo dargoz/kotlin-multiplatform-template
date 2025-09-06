@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.androidLibrary)
-    kotlin("plugin.serialization") version "2.0.0"
+    alias(libs.plugins.kotlin.serialization)
     id("module.publication")
     alias(libs.plugins.kotest.multiplatform)
     id("org.jetbrains.kotlin.native.cocoapods")
