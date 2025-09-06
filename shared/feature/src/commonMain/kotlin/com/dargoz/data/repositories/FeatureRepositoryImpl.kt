@@ -18,4 +18,8 @@ class FeatureRepositoryImpl(private val remoteDataSource: RemoteDataSource): Fea
             else -> throw IOException()
         }
     }
+
+    override suspend fun getFeatureList(): List<FeatureEntity> {
+        return listOf(FeatureEntity("core"), FeatureEntity("home"))
+    }
 }

@@ -112,10 +112,12 @@ android {
 
 dependencies {
     add("kspCommonMainMetadata", libs.koin.ksp.compiler)
+    add("kspCommonMainMetadata", project(":structurizr-ksp"))
 }
 
 ksp {
     arg("KOIN_CONFIG_CHECK","true")
+    arg("KOIN_DEFAULT_MODULE", "true")
 }
 
 // WORKAROUND: ADD this dependsOn("kspCommonMainKotlinMetadata") instead of above dependencies

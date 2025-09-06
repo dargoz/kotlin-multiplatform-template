@@ -9,7 +9,12 @@ import org.koin.core.annotation.Single
 class FeatureUseCase(private val featureRepository: FeatureRepository): UseCase<FeatureEntity, String>() {
 
     override suspend fun execute(param: String): FeatureEntity {
-        return featureRepository.getFeatureName()
+        if (param == "core") {
+            println("core")
+            return FeatureEntity("core")
+        } else {
+            return featureRepository.getFeatureName()
+        }
     }
 
 }
