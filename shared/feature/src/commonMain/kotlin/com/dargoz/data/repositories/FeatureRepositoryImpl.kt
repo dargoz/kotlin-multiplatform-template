@@ -12,7 +12,7 @@ import org.koin.core.annotation.Single
 class FeatureRepositoryImpl(private val remoteDataSource: RemoteDataSource): FeatureRepository {
 
     override suspend fun getFeatureName(): FeatureEntity {
-        val response = remoteDataSource.get("features", responseType = FeatureResponse::class)
+        val response = remoteDataSource.get("api/v1/feature", responseType = FeatureResponse::class)
         return when(response.httpCode) {
             200 -> response.body!!.toEntity()
             else -> throw IOException()
@@ -20,6 +20,10 @@ class FeatureRepositoryImpl(private val remoteDataSource: RemoteDataSource): Fea
     }
 
     override suspend fun getFeatureList(): List<FeatureEntity> {
-        return listOf(FeatureEntity("core"), FeatureEntity("home"))
+        val response = remoteDataSource.get("api/v1/features", responseType = FeatureResponse::class)
+        return when(response.httpCode) {
+            200 -> listOf(response.body!!.toEntity())
+            else -> throw IOException()
+        }
     }
 }

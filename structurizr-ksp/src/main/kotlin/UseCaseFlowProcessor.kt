@@ -1,15 +1,14 @@
 package com.example
 
-import com.example.util.FlowNode
 import com.example.util.MermaidBuilder
-import com.example.util.toFlowNode
+import com.example.util.extractFlowFromFunction
+import com.example.util.resolveKtFunction
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.*
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.psi.*
 import java.io.File
 
 
@@ -74,7 +73,7 @@ class UseCaseFlowProcessor(
         var mermaid = ""
         if (ktFunction != null) {
             println("✅ Function body: ${ktFunction.bodyExpression?.text}")
-            val flows = extractFlowFromFunction(ktFunction)
+            val flows = ktFunction.extractFlowFromFunction()
             println("flows: $flows")
             mermaid = MermaidBuilder().buildFlow(flows)
             println("Generated mermaid:\n$mermaid")
@@ -87,10 +86,7 @@ class UseCaseFlowProcessor(
         return mermaid
     }
 
-    fun extractFlowFromFunction(fn: KtNamedFunction): List<FlowNode> {
-        val body = fn.bodyBlockExpression ?: return emptyList()
-        return body.statements.mapNotNull { stmt -> stmt.toFlowNode() }
-    }
+
 
 
 }
@@ -106,39 +102,7 @@ fun createEnvironment(): KotlinCoreEnvironment {
     )
 }
 
-/**
- * Recursively search for a function by name in a PSI declaration.
- */
-private fun findFunctionRecursively(
-    declarations: List<KtDeclaration>,
-    targetName: String
-): KtNamedFunction? {
-    declarations.forEach { decl ->
-        when (decl) {
-            is KtNamedFunction -> {
-                if (decl.name == targetName) return decl
-            }
-            is KtClassOrObject -> {
-                val nested = findFunctionRecursively(decl.declarations, targetName)
-                if (nested != null) return nested
-            }
-        }
-    }
-    return null
-}
 
-/**
- * Try to resolve KSFunctionDeclaration into a KtNamedFunction using source parsing.
- */
-fun KSFunctionDeclaration.resolveKtFunction(env: KotlinCoreEnvironment): KtNamedFunction? {
-    val filePath = (this.location as? FileLocation)?.filePath ?: return null
-    val file = File(filePath)
-    if (!file.exists()) return null
-
-    val ktFile: KtFile = KtPsiFactory(env.project).createFile(file.name, file.readText())
-
-    return findFunctionRecursively(ktFile.declarations, this.simpleName.asString())
-}
 
 
 /**

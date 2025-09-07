@@ -1,28 +1,34 @@
 package com.example
 
+import com.example.util.MermaidBuilder
+import com.example.util.collectDependencies
+import com.example.util.extractFlowFromFunction
+import com.example.util.resolveKtFunction
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.*
+
+import com.google.devtools.ksp.processing.*
+import com.google.devtools.ksp.symbol.*
+import com.google.devtools.ksp.visitor.KSDefaultVisitor
 
 class StructurizrProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger
 ) : SymbolProcessor {
 
-    // Collect components across all rounds
     private val components = mutableMapOf<String, Component>()
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         resolver.getAllFiles().forEach { file ->
-            file.declarations.filterIsInstance<KSClassDeclaration>().filter { clazz ->
+            file.declarations.filterIsInstance<KSClassDeclaration>().forEach { clazz ->
                 val className = clazz.simpleName.asString()
-                !className.startsWith("_KSP_")
-                        && (className.endsWith("UseCase") || className.endsWith("Repository"))
-            }.forEach { clazz ->
-                val className = clazz.simpleName.asString()
+                if (className.startsWith("_KSP_")) return@forEach
+
                 val type = when {
                     className.endsWith("UseCase") -> "UseCase"
                     className.endsWith("Repository") -> "Repository"
-                    else -> "Other"
+                    className.endsWith("RepositoryImpl") -> "RepositoryImpl"
+                    else -> return@forEach
                 }
 
                 val component = components.getOrPut(className) { Component(className, type) }
@@ -32,16 +38,44 @@ class StructurizrProcessor(
                     val depType = param.type.resolve().declaration.simpleName.asString()
                     component.deps.add(depType)
                 }
+
+                // scan function bodies
+                clazz.getAllFunctions().forEach { function ->
+                    val kotlinNamedFunction = function.resolveKtFunction(createEnvironment())
+                    if (kotlinNamedFunction != null) {
+                        println("✅ Function body: ${kotlinNamedFunction.bodyExpression?.text}")
+                        val flows = kotlinNamedFunction.extractFlowFromFunction()
+                        val deps = flows.flatMap { it.collectDependencies() }
+                        deps.forEach { dep ->
+                            when (dep.type) {
+                                "RemoteDataSource" -> component.deps.add("RemoteDataSource:${dep.detail}")
+                                "LocalDataSource" -> component.deps.add("LocalDataSource:${dep.detail}")
+                            }
+                        }
+                        println("flows: $flows")
+
+                    } else {
+                        println("⚠️ No PSI found for ${function.simpleName.asString()}")
+                    }
+                }
+
             }
         }
 
-        return emptyList() // no deferred symbols
+        return emptyList()
     }
 
     override fun finish() {
         if (components.isEmpty()) return
 
-        // Generate file only once
+        // Add special components if referenced
+        if (components.values.any { it.deps.any { c -> c == "RemoteDataSource" } }) {
+            components.putIfAbsent("ExternalAPI", Component("ExternalAPI", "API"))
+        }
+        if (components.values.any { it.deps.any { c -> c == "LocalDataSource" } }) {
+            components.putIfAbsent("Database", Component("Database", "Database"))
+        }
+
         val file = codeGenerator.createNewFile(
             Dependencies.ALL_FILES,
             packageName = "",
@@ -49,10 +83,7 @@ class StructurizrProcessor(
             extensionName = "dsl"
         )
 
-        file.bufferedWriter().use { out ->
-            out.write(generateDslContent())
-        }
-
+        file.bufferedWriter().use { out -> out.write(generateDslContent()) }
         logger.info("✅ Structurizr DSL generated with ${components.size} components")
     }
 
@@ -63,36 +94,41 @@ class StructurizrProcessor(
         appendLine("    system = softwareSystem \"MyKotlinApp\" {")
         appendLine("      app = container \"Application\" {")
         components.values.forEach { comp ->
-            val id = comp.name.replaceFirstChar { it.lowercaseChar() } // e.g. FeatureUseCase -> featureUseCase
-            appendLine("        $id = component \"${comp.name}\" \"Auto-detected component\" \"Kotlin\" {")
+            val id = comp.dslId()
+            appendLine("        $id = component \"${comp.name}\" \"Auto-detected\" \"Kotlin\" {")
             appendLine("          tags \"${comp.type}\"")
             appendLine("        }")
         }
-
         appendLine("      }")
         appendLine("    }")
         appendLine("    user -> system \"Uses\"")
 
         components.values.forEach { comp ->
-            val sourceId = comp.name.replaceFirstChar { it.lowercaseChar() }
+            val sourceId = comp.dslId()
+            // constructor deps (generic "Uses")
             comp.deps.forEach { dep ->
-                if (components.containsKey(dep)) {
+                if (dep.startsWith("RemoteDataSource:")) {
+                    val url = dep.removePrefix("RemoteDataSource:")
+                    appendLine("    $sourceId -> remoteApi \"Calls $url\"")
+                } else if (dep.startsWith("LocalDataSource:")) {
+                    val op = dep.removePrefix("LocalDataSource:")
+                    appendLine("    $sourceId -> localDb \"Executes $op\"")
+                } else if (components.containsKey(dep)) {
                     val targetId = dep.replaceFirstChar { it.lowercaseChar() }
                     appendLine("    $sourceId -> $targetId \"Uses\"")
                 }
+            }
+            // function-level calls with refined labels
+            comp.calls.forEach { call ->
+                val targetId = call.target.replaceFirstChar { it.lowercaseChar() }
+                appendLine("    $sourceId -> $targetId \"${call.label}\"")
             }
         }
 
         appendLine("  }")
         appendLine("  views {")
-        appendLine("    container system {")
-        appendLine("      include *")
-        appendLine("      autolayout lr")
-        appendLine("    }")
-        appendLine("    component app {")
-        appendLine("      include *")
-        appendLine("      autolayout lr")
-        appendLine("    }")
+        appendLine("    container system { include * autolayout lr }")
+        appendLine("    component app { include * autolayout lr }")
         appendLine("  }")
         appendLine("}")
     }
@@ -100,8 +136,15 @@ class StructurizrProcessor(
     data class Component(
         val name: String,
         val type: String,
-        val deps: MutableSet<String> = mutableSetOf()
-    )
+        val deps: MutableSet<String> = mutableSetOf(),
+        val calls: MutableList<Call> = mutableListOf()
+    ) {
+        fun dslId() = name.replaceFirstChar { it.lowercaseChar() }
+    }
+
+    data class Call(val target: String, val label: String)
+
+
 }
 
 class StructurizrProcessorProvider : SymbolProcessorProvider {

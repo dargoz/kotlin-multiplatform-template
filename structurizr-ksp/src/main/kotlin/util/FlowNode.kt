@@ -19,7 +19,10 @@ sealed class FlowNode {
     ) : FlowNode()
 
     data class WhenBranch(val subject: String, val cases: Map<String, List<FlowNode>>) : FlowNode()
-
     data class ReturnNode(val expr: String?) : FlowNode()
     data class Statement(val text: String) : FlowNode()
+
+    // New for system interactions
+    data class ApiCall(val url: String) : FlowNode()
+    data class DbCall(val operation: String) : FlowNode()
 }
